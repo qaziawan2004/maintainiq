@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>MaintainIQ - Asset Maintenance Platform</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+    
+    <!-- QR Code Library -->
+    <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+    
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="stylesheet" href="css/responsive.css" />
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <i class="fas fa-microchip"></i>
+                <span>MaintainIQ</span>
+            </div>
+            <div class="nav-menu" id="navMenu">
+                <a href="#" class="nav-link active" data-page="dashboard">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="#" class="nav-link" data-page="assets">
+                    <i class="fas fa-boxes"></i> Assets
+                </a>
+                <a href="#" class="nav-link" data-page="issues">
+                    <i class="fas fa-exclamation-triangle"></i> Issues
+                </a>
+                <a href="#" class="nav-link" data-page="maintenance">
+                    <i class="fas fa-tools"></i> Maintenance
+                </a>
+                <a href="#" class="nav-link" data-page="history">
+                    <i class="fas fa-history"></i> History
+                </a>
+                <a href="#" class="nav-link" data-page="analytics">
+                    <i class="fas fa-chart-line"></i> Analytics
+                </a>
+            </div>
+            <div class="nav-actions">
+                <span class="user-info" id="userInfo">
+                    <i class="fas fa-user-circle"></i>
+                    <span id="usernameDisplay">User</span>
+                </span>
+                <button id="themeToggleNav" class="nav-btn" title="Toggle Theme">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <button id="notifBtn" class="nav-btn" title="Notifications">
+                    <i class="fas fa-bell"></i>
+                    <span class="badge" id="notifBadge">0</span>
+                </button>
+                <button id="resetDemoBtn" class="nav-btn" title="Reset Demo Data">
+                    <i class="fas fa-undo"></i>
+                </button>
+                <button id="logoutBtn" class="nav-btn" title="Logout">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+            <div class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Dashboard Page -->
+        <section id="dashboard" class="page active">
+            <div class="page-header">
+                <h1>Dashboard</h1>
+                <p>Overview of your asset maintenance operations</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon blue">
+                        <i class="fas fa-boxes"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="totalAssets">0</h3>
+                        <p>Total Assets</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon yellow">
+                        <i class="fas fa-exclamation-triangle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="openIssues">0</h3>
+                        <p>Open Issues</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon green">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="resolvedIssues">0</h3>
+                        <p>Resolved Issues</p>
+                    </div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-icon purple">
+                        <i class="fas fa-tools"></i>
+                    </div>
+                    <div class="stat-info">
+                        <h3 id="pendingMaintenance">0</h3>
+                        <p>Pending Maintenance</p>
+                    </div>
+                </div>
+            </div>
+            <div class="dashboard-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Recent Activity</h3>
+                    </div>
+                    <div class="card-body" id="recentActivity">
+                        <p class="empty-state">No recent activity</p>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Asset Status Distribution</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-header">
+                    <h3>AI Maintenance Insights</h3>
+                </div>
+                <div class="card-body" id="aiInsights">
+                    <p class="empty-state">Loading insights...</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Assets Page -->
+        <section id="assets" class="page">
+            <div class="page-header">
+                <div>
+                    <h1>Assets</h1>
+                    <p>Manage your physical assets and their digital identities</p>
+                </div>
+                <button class="btn-primary" id="addAssetBtn">
+                    <i class="fas fa-plus"></i> Add Asset
+                </button>
+            </div>
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="assetSearch" placeholder="Search assets..." />
+                </div>
+                <div class="filter-box">
+                    <select id="assetFilter">
+                        <option value="all">All Status</option>
+                        <option value="active">Active</option>
+                        <option value="maintenance">Maintenance</option>
+                        <option value="retired">Retired</option>
+                    </select>
+                </div>
+            </div>
+            <div class="assets-grid" id="assetsGrid">
+                <!-- Assets will be rendered here -->
+            </div>
+        </section>
+
+        <!-- Issues Page -->
+        <section id="issues" class="page">
+            <div class="page-header">
+                <div>
+                    <h1>Issues</h1>
+                    <p>Track and manage reported issues</p>
+                </div>
+                <button class="btn-primary" id="reportIssueBtn">
+                    <i class="fas fa-plus"></i> Report Issue
+                </button>
+            </div>
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="issueSearch" placeholder="Search issues..." />
+                </div>
+                <div class="filter-box">
+                    <select id="issueFilter">
+                        <option value="all">All Status</option>
+                        <option value="reported">Reported</option>
+                        <option value="in-progress">In Progress</option>
+                        <option value="resolved">Resolved</option>
+                        <option value="closed">Closed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="issues-list" id="issuesList">
+                <!-- Issues will be rendered here -->
+            </div>
+        </section>
+
+        <!-- Maintenance Page -->
+        <section id="maintenance" class="page">
+            <div class="page-header">
+                <h1>Maintenance</h1>
+                <p>Schedule and track maintenance tasks</p>
+            </div>
+            <div class="maintenance-grid" id="maintenanceGrid">
+                <!-- Maintenance records will be rendered here -->
+            </div>
+        </section>
+
+        <!-- History Page -->
+        <section id="history" class="page">
+            <div class="page-header">
+                <h1>Activity History</h1>
+                <p>Complete audit trail of all activities</p>
+            </div>
+            <div class="search-filter-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" id="historySearch" placeholder="Search history..." />
+                </div>
+                <div class="filter-box">
+                    <select id="historyFilter">
+                        <option value="all">All Types</option>
+                        <option value="asset_created">Asset Created</option>
+                        <option value="asset_updated">Asset Updated</option>
+                        <option value="asset_deleted">Asset Deleted</option>
+                        <option value="issue_reported">Issue Reported</option>
+                        <option value="issue_updated">Issue Updated</option>
+                        <option value="issue_resolved">Issue Resolved</option>
+                        <option value="maintenance_scheduled">Maintenance Scheduled</option>
+                        <option value="maintenance_completed">Maintenance Completed</option>
+                    </select>
+                </div>
+            </div>
+            <div class="history-list" id="historyList">
+                <!-- History entries will be rendered here -->
+            </div>
+        </section>
+
+        <!-- Analytics Page -->
+        <section id="analytics" class="page">
+            <div class="page-header">
+                <h1>Analytics</h1>
+                <p>Operational insights and metrics</p>
+            </div>
+            <div class="analytics-grid">
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Issues by Status</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="issuesStatusChart"></canvas>
+                    </div>
+                </div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3>Maintenance Trends</h3>
+                    </div>
+                    <div class="card-body">
+                        <canvas id="maintenanceTrendChart"></canvas>
+                    </div>
+                </div>
+                <div class="card full-width">
+                    <div class="card-header">
+                        <h3>Top Assets by Issue Count</h3>
+                    </div>
+                    <div class="card-body" id="topAssetsList">
+                        <p class="empty-state">No data available</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Asset Modal -->
+    <div class="modal" id="assetModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="assetModalTitle">Add Asset</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="assetForm">
+                    <div class="form-group">
+                        <label>Asset Name *</label>
+                        <input type="text" id="assetName" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Asset Code *</label>
+                        <input type="text" id="assetCode" required />
+                        <small>Unique identifier for the asset</small>
+                    </div>
+                    <div class="form-group">
+                        <label>Category</label>
+                        <select id="assetCategory">
+                            <option value="Electronics">Electronics</option>
+                            <option value="Furniture">Furniture</option>
+                            <option value="Vehicle">Vehicle</option>
+                            <option value="Equipment">Equipment</option>
+                            <option value="Other">Other</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Location</label>
+                        <input type="text" id="assetLocation" placeholder="Building, Room, etc." />
+                    </div>
+                    <div class="form-group">
+                        <label>Description</label>
+                        <textarea id="assetDescription" rows="3"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="assetStatus">
+                            <option value="active">Active</option>
+                            <option value="maintenance">Maintenance</option>
+                            <option value="retired">Retired</option>
+                        </select>
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary modal-close">Cancel</button>
+                        <button type="submit" class="btn-primary">Save Asset</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Modal -->
+    <div class="modal" id="issueModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="issueModalTitle">Report Issue</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="issueForm">
+                    <div class="form-group">
+                        <label>Asset *</label>
+                        <select id="issueAsset" required>
+                            <option value="">Select an asset</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Title *</label>
+                        <input type="text" id="issueTitle" required />
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="issueDescription" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label>Priority</label>
+                        <select id="issuePriority">
+                            <option value="low">Low</option>
+                            <option value="medium" selected>Medium</option>
+                            <option value="high">High</option>
+                            <option value="critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="issueStatus">
+                            <option value="reported">Reported</option>
+                            <option value="in-progress">In Progress</option>
+                            <option value="resolved">Resolved</option>
+                            <option value="closed">Closed</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Evidence Upload</label>
+                        <input type="file" id="issueEvidence" accept="image/*" />
+                    </div>
+                    <div class="form-actions">
+                        <button type="button" class="btn-secondary modal-close">Cancel</button>
+                        <button type="submit" class="btn-primary">Submit Issue</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Asset Detail Modal -->
+    <div class="modal" id="assetDetailModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="assetDetailTitle">Asset Details</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="assetDetailContent">
+                    <!-- Asset details rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Issue Detail Modal -->
+    <div class="modal" id="issueDetailModal">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="issueDetailTitle">Issue Details</h2>
+                <button class="modal-close">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div id="issueDetailContent">
+                    <!-- Issue details rendered here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notifications Panel -->
+    <div class="notifications-panel" id="notifPanel">
+        <div class="notif-header">
+            <h3>Notifications</h3>
+            <button id="clearNotifBtn">Clear All</button>
+        </div>
+        <div class="notif-list" id="notifList">
+            <p class="empty-state">No notifications</p>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <!-- Custom Scripts -->
+    <script src="js/utils.js"></script>
+    <script src="js/storage.js"></script>
+    <script src="js/auth.js"></script>
+    <script src="js/qr.js"></script>
+    <script src="js/ai.js"></script>
+    <script src="js/notifications.js"></script>
+    <script src="js/analytics.js"></script>
+    <script src="js/assets.js"></script>
+    <script src="js/issues.js"></script>
+    <script src="js/asset-detail.js"></script>
+    <script src="js/issue-detail.js"></script>
+    <script src="js/maintenance.js"></script>
+    <script src="js/history.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>
