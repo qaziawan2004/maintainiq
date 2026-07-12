@@ -50,7 +50,6 @@ const App = {
         const savedTheme = localStorage.getItem('theme') || 'dark';
         const toggleBtn = document.getElementById('themeToggleNav');
         
-        // Check if toggle button exists
         if (!toggleBtn) {
             console.warn('Theme toggle button not found');
             return;
@@ -87,6 +86,8 @@ const App = {
                 e.preventDefault();
                 const page = this.dataset.page;
                 App.navigateTo(page);
+                // Close mobile menu
+                App.closeMobileMenu();
             });
         });
         
@@ -113,9 +114,29 @@ const App = {
             Notifications.clearAll();
         });
         
-        // Hamburger menu
-        document.getElementById('hamburger').addEventListener('click', function() {
-            document.getElementById('navMenu').classList.toggle('open');
+        // Hamburger menu - Enhanced with overlay
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        
+        if (hamburger) {
+            hamburger.addEventListener('click', function(e) {
+                e.stopPropagation();
+                this.classList.toggle('active');
+                navMenu.classList.toggle('open');
+                App.toggleOverlay();
+            });
+        }
+        
+        // Close menu when clicking outside
+        document.addEventListener('click', function(e) {
+            const nav = document.getElementById('navMenu');
+            const hamburger = document.getElementById('hamburger');
+            
+            if (nav && nav.classList.contains('open')) {
+                if (!nav.contains(e.target) && !hamburger.contains(e.target)) {
+                    App.closeMobileMenu();
+                }
+            }
         });
         
         // Close modals on backdrop click
@@ -133,6 +154,36 @@ const App = {
                 this.closest('.modal').classList.remove('active');
             });
         });
+        
+        // Close menu on escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                App.closeMobileMenu();
+            }
+        });
+    },
+    
+    toggleOverlay() {
+        let overlay = document.querySelector('.nav-overlay');
+        if (!overlay) {
+            overlay = document.createElement('div');
+            overlay.className = 'nav-overlay';
+            document.body.appendChild(overlay);
+            overlay.addEventListener('click', function() {
+                App.closeMobileMenu();
+            });
+        }
+        overlay.classList.toggle('active');
+    },
+    
+    closeMobileMenu() {
+        const hamburger = document.getElementById('hamburger');
+        const navMenu = document.getElementById('navMenu');
+        const overlay = document.querySelector('.nav-overlay');
+        
+        if (hamburger) hamburger.classList.remove('active');
+        if (navMenu) navMenu.classList.remove('open');
+        if (overlay) overlay.classList.remove('active');
     },
     
     navigateTo(page) {
@@ -156,7 +207,7 @@ const App = {
         });
         
         // Close mobile menu
-        document.getElementById('navMenu').classList.remove('open');
+        this.closeMobileMenu();
         
         // Refresh content based on page
         if (page === 'dashboard') {
